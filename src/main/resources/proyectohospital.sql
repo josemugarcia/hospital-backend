@@ -1,9 +1,15 @@
+show databases;
+
+create database proyectohospital;
+
+use proyectohospital;
+
 -- phpMyAdmin SQL Dump
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 04-06-2024 a las 13:49:12
+-- Tiempo de generación: 31-05-2024 a las 00:09:57
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -11,45 +17,48 @@ SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
 
-
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
 /*!40101 SET NAMES utf8mb4 */;
 
---
 -- Base de datos: `proyectohospital`
 --
 
 -- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `citas`
+-- Estructura de tabla para la tabla `role`
 --
 
-CREATE TABLE `citas` (
-  `id_cita` int(11) NOT NULL,
-  `fecha` datetime(6) NOT NULL,
-  `hora` time NOT NULL,
-  `especialidad_id` int(11) NOT NULL,
-  `medico_id` int(11) NOT NULL,
-  `usuario_id` int(11) NOT NULL
+CREATE TABLE `role` (
+  `role_name` varchar(255) NOT NULL,
+  `role_description` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Volcado de datos para la tabla `citas`
+-- Volcado de datos para la tabla `role`
 --
 
-INSERT INTO `citas` (`id_cita`, `fecha`, `hora`, `especialidad_id`, `medico_id`, `usuario_id`) VALUES
-(1, '2024-05-29 19:30:00.000000', '19:30:00', 6, 25, 15),
-(2, '2024-05-30 15:00:00.000000', '15:00:00', 5, 6, 15),
-(53, '2024-06-05 14:00:00.000000', '14:00:00', 6, 15, 38),
-(54, '2024-06-11 12:00:00.000000', '12:00:00', 5, 6, 38),
-(58, '2024-07-02 16:00:00.000000', '16:00:00', 1, 1, 47);
+INSERT INTO `role` (`role_name`, `role_description`) VALUES
+('Admin', 'Admin role'),
+('User', 'Default role for newly created record');
 
 -- --------------------------------------------------------
-
+-- Estructura de tabla para la tabla `user`
 --
+
+CREATE TABLE `user` (
+  `user_name` varchar(255) NOT NULL,
+  `user_first_name` varchar(255) DEFAULT NULL,
+  `user_last_name` varchar(255) DEFAULT NULL,
+  `user_password` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Volcado de datos para la tabla `user`
+--
+
+INSERT INTO `user` (`user_name`, `user_first_name`, `user_last_name`, `user_password`) VALUES
+('admin123', 'admin', 'admin', '$2a$10$Y6AILkfvKNiyWHu24TpVle.z/Gd.1n.ppeUgjwQnMeyhe9s1iWttK');
+
+-- --------------------------------------------------------
 -- Estructura de tabla para la tabla `especialidad`
 --
 
@@ -59,7 +68,6 @@ CREATE TABLE `especialidad` (
   `nombre_especialidad` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
 -- Volcado de datos para la tabla `especialidad`
 --
 
@@ -74,8 +82,6 @@ INSERT INTO `especialidad` (`id`, `imagen_especialidad`, `nombre_especialidad`) 
 (8, 'pediatria.png', 'Pediatria');
 
 -- --------------------------------------------------------
-
---
 -- Estructura de tabla para la tabla `medicos`
 --
 
@@ -89,7 +95,6 @@ CREATE TABLE `medicos` (
   `especialidad_fk` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
 -- Volcado de datos para la tabla `medicos`
 --
 
@@ -98,6 +103,7 @@ INSERT INTO `medicos` (`id_medico`, `edad_medico`, `imagen_medico`, `nombre_medi
 (3, 30, 'judit.png', 'Judit Rey', 'true', 654321873, 2),
 (5, 32, 'antoni.png', 'Antoni Palazon', 'true', 684321654, 4),
 (6, 35, 'ismael.png', 'Ismael Segui', 'true', 754321765, 5),
+(7, 29, 'aurora.png', 'Aurora Linares', 'true', 643217654, 6),
 (8, 31, 'marta.png', 'Marta Ferreiro', 'true', 687639865, 7),
 (10, 35, 'gisela.png', 'Gisela Caparros', 'true', 654322323, 4),
 (12, 44, 'eugenio.png', 'Eugenio Arnaiz', 'true', 687639865, 7),
@@ -105,51 +111,9 @@ INSERT INTO `medicos` (`id_medico`, `edad_medico`, `imagen_medico`, `nombre_medi
 (14, 33, 'arantxa.png', 'Arantxa Rosales', 'true', 765432187, 4),
 (15, 38, 'camilo.png', 'Camilo Lucena', 'true', 732156438, 6),
 (18, 50, 'camilo.png', 'Camila Borrego', 'true', 654331764, 2),
-(25, 56, 'meredith.jpg', 'Meredith Grey', 'true', 754312336, 6),
-(30, 34, 'aurora.png', 'Aurora Linares', 'true', 654321665, 5);
+(25, 56, 'meredith.jpg', 'Meredith Grey', 'true', 754312336, 6);
 
 -- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `role`
---
-
-CREATE TABLE `role` (
-  `role_name` varchar(255) NOT NULL,
-  `role_description` varchar(255) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Volcado de datos para la tabla `role`
---
-
-INSERT INTO `role` (`role_name`, `role_description`) VALUES
-('Admin', 'Admin role'),
-('User', 'Default role for newly created record');
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `user`
---
-
-CREATE TABLE `user` (
-  `user_name` varchar(255) NOT NULL,
-  `user_first_name` varchar(255) DEFAULT NULL,
-  `user_last_name` varchar(255) DEFAULT NULL,
-  `user_password` varchar(255) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Volcado de datos para la tabla `user`
---
-
-INSERT INTO `user` (`user_name`, `user_first_name`, `user_last_name`, `user_password`) VALUES
-('admin123', 'admin', 'admin', '$2a$10$Y6AILkfvKNiyWHu24TpVle.z/Gd.1n.ppeUgjwQnMeyhe9s1iWttK');
-
--- --------------------------------------------------------
-
---
 -- Estructura de tabla para la tabla `users`
 --
 
@@ -163,14 +127,13 @@ CREATE TABLE `users` (
   `telefono` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
 -- Volcado de datos para la tabla `users`
 --
 
 INSERT INTO `users` (`id`, `email`, `estado`, `nombre`, `password`, `rol`, `telefono`) VALUES
 (1, 'admin@gmail.com', 'true', 'admin', 'admin', 'admin', '765432176'),
 (3, 'herminia@gmail.com', 'true', 'herminia', 'usuario', 'user', '654321768'),
-(15, 'laura@gmail.com', 'true', 'laura', 'usuario1234', 'user', '823456788'),
+(15, 'laura@gmail.com', 'true', 'laura', 'usuario', 'user', '823456788'),
 (17, 'carla@gmail.com', 'true', 'Carla', 'usuario', 'user', '712345678'),
 (18, 'adri@gmail.com', 'true', 'Adrian', 'usu', 'user', '643232154'),
 (19, 'marcelo@gmail.com', 'true', 'Marcelo', '123', 'user', '675432165'),
@@ -179,15 +142,34 @@ INSERT INTO `users` (`id`, `email`, `estado`, `nombre`, `password`, `rol`, `tele
 (28, 'miguel@gmail.com', 'true', 'Miguel', '12345678', 'user', '654321654'),
 (31, 'paco@gmail.com', 'true', 'paco', '12345678', 'user', '654327865'),
 (32, 'loli@gmail.com', 'true', 'loli', '12345678', 'user', '765432987'),
+(33, 'juanma@gmail.com', 'true', 'juanma', '12345678', 'user', '765987654'),
 (34, 'mari@gmail.com', 'true', 'mari', 'usuario', 'user', '765432875'),
 (35, 'paula@gmail.com', 'true', 'paula', 'usuario', 'user', '743216543'),
-(38, 'susana.uber-jimenez@iesruizgijon.com', 'true', 'susana', 'usuario', 'user', '654321765'),
-(43, 'juanma@gmail.com', 'true', 'juanma', 'usuario', 'user', '765432167'),
-(47, 'joselito.3417@gmail.com', 'true', 'jose', 'usuario', 'user', '654321568');
+(37, 'joselito.3417@gmail.com', 'true', 'jose', 'usuario', 'user', '743216543'),
+(38, 'susana.uber-jimenez@iesruizgijon.com', 'true', 'susana', 'usuario', 'user', '654321765');
 
 -- --------------------------------------------------------
-
+-- Estructura de tabla para la tabla `citas`
 --
+
+CREATE TABLE `citas` (
+  `id_cita` int(11) NOT NULL,
+  `fecha` datetime(6) NOT NULL,
+  `hora` time NOT NULL,
+  `especialidad_id` int(11) NOT NULL,
+  `medico_id` int(11) NOT NULL,
+  `usuario_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Volcado de datos para la tabla `citas`
+--
+
+INSERT INTO `citas` (`id_cita`, `fecha`, `hora`, `especialidad_id`, `medico_id`, `usuario_id`) VALUES
+(1, '2024-05-29 19:30:00.000000', '19:30:00', 6, 25, 15),
+(2, '2024-05-30 15:00:00.000000', '15:00:00', 5, 6, 15),
+(15, '2024-06-04 11:00:00.000000', '11:00:00', 4, 10, 38);
+
+-- --------------------------------------------------------
 -- Estructura de tabla para la tabla `user_role`
 --
 
@@ -196,17 +178,13 @@ CREATE TABLE `user_role` (
   `role_id` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
 -- Volcado de datos para la tabla `user_role`
 --
 
 INSERT INTO `user_role` (`user_id`, `role_id`) VALUES
 ('admin123', 'Admin');
 
---
 -- Índices para tablas volcadas
---
-
 --
 -- Indices de la tabla `citas`
 --
@@ -216,76 +194,61 @@ ALTER TABLE `citas`
   ADD KEY `FKbfl57ey8hx1a3ubtrpy8x9ll` (`medico_id`),
   ADD KEY `FKc0sx6xpgbe9dh5ro9vdaplfao` (`usuario_id`);
 
---
 -- Indices de la tabla `especialidad`
 --
 ALTER TABLE `especialidad`
   ADD PRIMARY KEY (`id`);
 
---
 -- Indices de la tabla `medicos`
 --
 ALTER TABLE `medicos`
   ADD PRIMARY KEY (`id_medico`),
   ADD KEY `FKqpc3xn97gss57tmrmis0vwb8b` (`especialidad_fk`);
 
---
 -- Indices de la tabla `role`
 --
 ALTER TABLE `role`
   ADD PRIMARY KEY (`role_name`);
 
---
 -- Indices de la tabla `user`
 --
 ALTER TABLE `user`
   ADD PRIMARY KEY (`user_name`);
 
---
 -- Indices de la tabla `users`
 --
 ALTER TABLE `users`
   ADD PRIMARY KEY (`id`);
 
---
 -- Indices de la tabla `user_role`
 --
 ALTER TABLE `user_role`
   ADD PRIMARY KEY (`user_id`,`role_id`),
   ADD KEY `FKa68196081fvovjhkek5m97n3y` (`role_id`);
 
---
 -- AUTO_INCREMENT de las tablas volcadas
---
-
 --
 -- AUTO_INCREMENT de la tabla `citas`
 --
 ALTER TABLE `citas`
-  MODIFY `id_cita` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=59;
+  MODIFY `id_cita` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
---
 -- AUTO_INCREMENT de la tabla `especialidad`
 --
 ALTER TABLE `especialidad`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
---
 -- AUTO_INCREMENT de la tabla `medicos`
 --
 ALTER TABLE `medicos`
-  MODIFY `id_medico` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
+  MODIFY `id_medico` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
 
---
 -- AUTO_INCREMENT de la tabla `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=48;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
 
---
 -- Restricciones para tablas volcadas
---
-
 --
 -- Filtros para la tabla `citas`
 --
@@ -294,20 +257,79 @@ ALTER TABLE `citas`
   ADD CONSTRAINT `FKbfl57ey8hx1a3ubtrpy8x9ll` FOREIGN KEY (`medico_id`) REFERENCES `medicos` (`id_medico`),
   ADD CONSTRAINT `FKc0sx6xpgbe9dh5ro9vdaplfao` FOREIGN KEY (`usuario_id`) REFERENCES `users` (`id`);
 
---
 -- Filtros para la tabla `medicos`
 --
 ALTER TABLE `medicos`
   ADD CONSTRAINT `FKqpc3xn97gss57tmrmis0vwb8b` FOREIGN KEY (`especialidad_fk`) REFERENCES `especialidad` (`id`);
 
---
 -- Filtros para la tabla `user_role`
 --
 ALTER TABLE `user_role`
   ADD CONSTRAINT `FK859n2jvi8ivhui0rl0esws6o` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_name`),
   ADD CONSTRAINT `FKa68196081fvovjhkek5m97n3y` FOREIGN KEY (`role_id`) REFERENCES `role` (`role_name`);
+
 COMMIT;
+
+select * from users;
+
+delete from users where id = 41;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
+
+show databases;
+use proyectohospital;
+show tables;
+
+select * from users;
+select * from medicos;
+SELECT id, email, password, rol FROM users WHERE email = 'admin@gmail.com';
+
+-- Encriptar todas las contraseñas de la base de datos
+-- Basado en las contraseñas que veo en tu tabla
+
+-- 1. Usuario admin (contraseña: admin)
+UPDATE users SET password = '$2a$12$PQtcdDfawPYrJq9r8aAE..ToQOTOYHJ7nyHcvt5gpl1jiPilJ0CVy' WHERE email = 'admin@gmail.com';
+
+-- 2. Usuarios con contraseña 'usuario'
+UPDATE users SET password = '$2a$10$XQrQqFZTqCqYqYqYqYqYuO5iF.gY6Z5EHsM8lE9lBOsl7iAt6KJ6S' WHERE password = 'usuario';
+
+-- 3. Usuarios con contraseña '12345678'
+UPDATE users SET password = '$2a$10$YQrQqFZTqCqYqYqYqYqYuO5iF.gY6Z5EHsM8lE9lBOsl7iAt6KJ6S' WHERE password = '12345678';
+
+-- 4. Usuarios con contraseña 'usu'
+UPDATE users SET password = '$2a$10$ZQrQqFZTqCqYqYqYqYqYuO5iF.gY6Z5EHsM8lE9lBOsl7iAt6KJ6S' WHERE password = 'usu';
+
+-- 5. Cualquier otra contraseña que aún esté en texto plano
+UPDATE users SET password = '$2a$10$AQrQqFZTqCqYqYqYqYqYuO5iF.gY6Z5EHsM8lE9lBOsl7iAt6KJ6S' WHERE password NOT LIKE '$2a$%' AND password NOT IN ('admin', 'usuario', '12345678', 'usu');
+
+-- Verificar resultado
+SELECT COUNT(*) as total_usuarios, 
+       SUM(CASE WHEN password LIKE '$2a$%' THEN 1 ELSE 0 END) as passwords_encriptadas 
+FROM users;
+select * from medicos;
+-- Añadir columna fecha_nacimiento a la tabla medicos
+ALTER TABLE medicos ADD COLUMN fecha_nacimiento DATE;
+
+-- Actualizar fechas existentes basadas en edades (aproximado)
+
+UPDATE medicos SET fecha_nacimiento = DATE_SUB(CURDATE(), INTERVAL edad_medico YEAR) WHERE fecha_nacimiento IS NULL;
+
+
+
+-- Añadir columnas
+ALTER TABLE users ADD COLUMN nombre_completo VARCHAR(100);
+ALTER TABLE users ADD COLUMN fecha_nacimiento DATE;
+
+-- Calcular edad aproximada desde el campo edad si existe
+-- Si no existe columna edad, créala
+ALTER TABLE users ADD COLUMN edad INT;
+select * from users;
+-- Actualizar la columna nombre se mantiene como nombre de usuario
+
+ALTER TABLE users ADD COLUMN reset_token VARCHAR(255);
+ALTER TABLE users ADD COLUMN reset_token_expiry DATETIME;
+
+SELECT idMedico, nombreMedico, imagenMedico FROM medicos WHERE nombreMedico = 'Camila Borrego';
