@@ -1,6 +1,7 @@
 package com.hospital.JWT;
 
 import java.util.List;
+import java.util.Arrays;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -51,12 +52,18 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public CorsFilter corsFilter() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
-        //config.setAllowCredentials(true);
-        config.setAllowedOrigins(List.of("https://centrojamud.netlify.app"));
-        config.setAllowedOrigins(List.of("http://localhost:4200"));
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
-        config.setExposedHeaders(List.of("Authorization"));
+
+        // ✅ CORREGIDO: Usar addAll en lugar de set dos veces
+        config.setAllowedOrigins(Arrays.asList(
+                "https://centrojamud.netlify.app",
+                "http://localhost:4200"));
+
+        config.setAllowCredentials(true);
+        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept"));
+        config.setExposedHeaders(Arrays.asList("Authorization"));
+        config.setMaxAge(3600L); // Tiempo de cache de CORS (1 hora)
+
         source.registerCorsConfiguration("/**", config);
         return new CorsFilter(source);
     }
@@ -64,30 +71,30 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable()
-            .cors().and()
-            .authorizeRequests()
-            .antMatchers(
-                "/user/login",
-                "/user/signup", 
-                "/user/forgotPassword",
-                "/user/reset-password",        // ✅ NUEVA RUTA
-                "/medico/get",
-                "/medico/update", 
-                "/especialidad/get", 
-                "/cita/add",
-                "/cita/get", 
-                "/cita/delete/**", 
-                "/medico/getByEspecialidad/**",
-                "/medico/delete/**",
-                "/medico/addWithImage",
-                "/medico/uploads/medicos/**"
-            ).permitAll()
-            .anyRequest().authenticated()
-            .and()
-            .exceptionHandling()
-            .and()
-            .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-        
+                .cors().and()
+                .authorizeRequests()
+                .antMatchers(
+                        "/user/login",
+                        "/user/signup",
+                        "/user/forgotPassword",
+                        "/user/reset-password",
+                        "/medico/get",
+                        "/medico/update",
+                        "/especialidad/get",
+                        "/cita/add",
+                        "/cita/get",
+                        "/cita/delete/**",
+                        "/medico/getByEspecialidad/**",
+                        "/medico/delete/**",
+                        "/medico/addWithImage",
+                        "/medico/uploads/medicos/**")
+                .permitAll()
+                .anyRequest().authenticated()
+                .and()
+                .exceptionHandling()
+                .and()
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
     }
 }
