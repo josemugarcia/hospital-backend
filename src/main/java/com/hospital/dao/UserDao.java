@@ -18,13 +18,13 @@ public interface UserDao extends JpaRepository<User, Integer> {
 
     User findByEmail(String email);
     
-    // ✅ NUEVO: Buscar usuario por token de recuperación
     User findByResetToken(String resetToken);
     
-    @Query("select new com.hospital.wrapper.UserWrapper(u.id, u.nombre, u.email, u.telefono, u.estado, u.password) from User u where u.rol='user'")
+
+    @Query("select new com.hospital.wrapper.UserWrapper(u.id, u.nombre, u.email, u.telefono, u.estado, u.password, u.nombreCompleto, u.edad) from User u where u.rol='user'")
     List<UserWrapper> getAllUser();
     
-    @Query("select new com.hospital.wrapper.UserWrapper(u.id, u.nombre, u.email, u.telefono, u.estado, u.password) from User u where u.rol='admin'")
+    @Query("select new com.hospital.wrapper.UserWrapper(u.id, u.nombre, u.email, u.telefono, u.estado, u.password, u.nombreCompleto, u.edad) from User u where u.rol='admin'")
     List<UserWrapper> getAdmin();
     
     @Modifying
