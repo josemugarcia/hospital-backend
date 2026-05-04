@@ -30,9 +30,9 @@ import lombok.Data;
 
 @NamedQuery(name = "User.getAllUser", query = "select new com.hospital.wrapper.UserWrapper(u.id, u.nombre, u.email, u.telefono, u.estado, u.password, u.nombreCompleto, u.edad) from User u where u.rol='user'")
 
-@NamedQuery(name = "User.updateStatus", query = "update User u set u.estado=:estado where u.id=:id")
-
 @NamedQuery(name = "User.getAdmin", query = "select new com.hospital.wrapper.UserWrapper(u.id, u.nombre, u.email, u.telefono, u.estado, u.password, u.nombreCompleto, u.edad) from User u where u.rol='admin'")
+
+@NamedQuery(name = "User.updateStatus", query = "update User u set u.estado=:estado where u.id=:id")
 @Data
 @Entity
 @DynamicUpdate
