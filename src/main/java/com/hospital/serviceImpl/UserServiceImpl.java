@@ -110,32 +110,35 @@ public class UserServiceImpl implements UserService {
     }
 
     private User getUser2FromMap(Map<String, String> requestMap, User existingUser, boolean isAdd) {
+          log.info("📝 getUser2FromMap - nombreCompleto recibido: {}", requestMap.get("nombreCompleto"));
+    log.info("📝 getUser2FromMap - fechaNacimiento recibido: {}", requestMap.get("fechaNacimiento"));
         User user = new User();
         if (isAdd) {
             user.setId(Integer.parseInt(requestMap.get("id")));
         }
 
-        user.setNombre(requestMap.get("nombre"));
-        user.setNombreCompleto(requestMap.get("nombreCompleto")); // ✅ NUEVO
-        user.setTelefono(requestMap.get("telefono"));
-        user.setEmail(requestMap.get("email"));
+        // ✅ Mantener los valores existentes POR DEFECTO
+        user.setNombre(requestMap.getOrDefault("nombre", existingUser.getNombre()));
+        user.setNombreCompleto(requestMap.getOrDefault("nombreCompleto", existingUser.getNombreCompleto()));
+        user.setTelefono(requestMap.getOrDefault("telefono", existingUser.getTelefono()));
+        user.setEmail(requestMap.getOrDefault("email", existingUser.getEmail()));
 
-        // ✅ Fecha de nacimiento
+        // ✅ Mantener fecha de nacimiento si no viene en la petición
         String fechaNacimientoStr = requestMap.get("fechaNacimiento");
         if (fechaNacimientoStr != null && !fechaNacimientoStr.isEmpty()) {
             java.time.LocalDate fechaNacimiento = java.time.LocalDate.parse(fechaNacimientoStr);
             user.setFechaNacimiento(fechaNacimiento);
+        } else {
+            user.setFechaNacimiento(existingUser.getFechaNacimiento());
         }
 
         // Mantener los valores existentes de estado, password y rol
         user.setEstado(existingUser.getEstado());
-        user.setPassword(existingUser.getPassword());
+        user.setPassword(existingUser.getPassword()); // Mantener contraseña actual
         user.setRol(existingUser.getRol());
 
         // Cargar las citas asociadas al usuario
         existingUser.getCitas().size();
-
-        // Copiar las citas del usuario existente al nuevo usuario
         user.setCitas(existingUser.getCitas());
 
         return user;
@@ -219,6 +222,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResponseEntity<String> updateUser(Map<String, String> requestMap) {
         try {
+             log.info("📝 Datos recibidos en updateUser: {}", requestMap);
             if (jwtFilter.isAdmin()) {
                 if (validateUserMap(requestMap, true)) {
                     Optional<User> optional = userDao.findById(Integer.parseInt(requestMap.get("id")));
