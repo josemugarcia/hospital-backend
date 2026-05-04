@@ -39,9 +39,10 @@ public class MedicoServiceImpl implements MedicoService {
                     // Verificar si el médico ya existe
                     String nombreMedico = requestMap.get("nombreMedico");
                     if (medicoDao.findByNombreMedico(nombreMedico) != null) {
-                        return HospitalUtils.getResponseEntity("El médico con este nombre ya existe", HttpStatus.CONFLICT);
+                        return HospitalUtils.getResponseEntity("El médico con este nombre ya existe",
+                                HttpStatus.CONFLICT);
                     }
-    
+
                     medicoDao.save(getMedicosFromMap(requestMap, false));
                     return HospitalUtils.getResponseEntity("Médico agregado correctamente", HttpStatus.OK);
                 }
@@ -54,7 +55,6 @@ public class MedicoServiceImpl implements MedicoService {
         }
         return HospitalUtils.getResponseEntity(HospitalConstant.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
     }
-    
 
     private boolean validateMedicoMap(Map<String, String> requestMap, boolean validateId) {
         if (requestMap.containsKey("nombreMedico")) {
@@ -68,38 +68,38 @@ public class MedicoServiceImpl implements MedicoService {
     }
 
     private Medico getMedicosFromMap(Map<String, String> requestMap, boolean isAdd) {
-    Especialidad especialidad = new Especialidad();
-    especialidad.setId(Integer.parseInt(requestMap.get("especialidadId")));
-    
-    Medico medico = new Medico();
-    if (isAdd) {
-        medico.setIdMedico(Integer.parseInt(requestMap.get("idMedico")));
-    } else {
-        medico.setStatus("true");
+        Especialidad especialidad = new Especialidad();
+        especialidad.setId(Integer.parseInt(requestMap.get("especialidadId")));
+
+        Medico medico = new Medico();
+        if (isAdd) {
+            medico.setIdMedico(Integer.parseInt(requestMap.get("idMedico")));
+        } else {
+            medico.setStatus("true");
+        }
+        medico.setEspecialidadMedico(especialidad);
+        medico.setNombreMedico(requestMap.get("nombreMedico"));
+
+        // ✅ Verificar que telefonoMedico no sea null
+        String telefonoStr = requestMap.get("telefonoMedico");
+        if (telefonoStr != null && !telefonoStr.isEmpty()) {
+            medico.setTelefonoMedico(Integer.parseInt(telefonoStr));
+        }
+
+        // ✅ USAR FECHA DE NACIMIENTO en lugar de edad
+        String fechaNacimientoStr = requestMap.get("fechaNacimiento");
+        if (fechaNacimientoStr != null && !fechaNacimientoStr.isEmpty()) {
+            java.time.LocalDate fechaNacimiento = java.time.LocalDate.parse(fechaNacimientoStr);
+            medico.setFechaNacimiento(fechaNacimiento);
+
+            // Calcular edad automáticamente
+            int edad = java.time.Period.between(fechaNacimiento, java.time.LocalDate.now()).getYears();
+            medico.setEdadMedico(edad);
+        }
+
+        medico.setImagenMedico(requestMap.get("imagenMedico"));
+        return medico;
     }
-    medico.setEspecialidadMedico(especialidad);
-    medico.setNombreMedico(requestMap.get("nombreMedico"));
-    
-    // ✅ Verificar que telefonoMedico no sea null
-    String telefonoStr = requestMap.get("telefonoMedico");
-    if (telefonoStr != null && !telefonoStr.isEmpty()) {
-        medico.setTelefonoMedico(Integer.parseInt(telefonoStr));
-    }
-    
-    // ✅ USAR FECHA DE NACIMIENTO en lugar de edad
-    String fechaNacimientoStr = requestMap.get("fechaNacimiento");
-    if (fechaNacimientoStr != null && !fechaNacimientoStr.isEmpty()) {
-        java.time.LocalDate fechaNacimiento = java.time.LocalDate.parse(fechaNacimientoStr);
-        medico.setFechaNacimiento(fechaNacimiento);
-        
-        // Calcular edad automáticamente
-        int edad = java.time.Period.between(fechaNacimiento, java.time.LocalDate.now()).getYears();
-        medico.setEdadMedico(edad);
-    }
-    
-    medico.setImagenMedico(requestMap.get("imagenMedico"));
-    return medico;
-}
 
     @Override
     public ResponseEntity<List<MedicoWrapper>> getAllMedico() {
@@ -118,24 +118,51 @@ public class MedicoServiceImpl implements MedicoService {
             if (jwtFilter.isAdmin()) {
                 if (validateMedicoMap(requestMap, true)) {
                     Optional<Medico> optional = medicoDao.findById(Integer.parseInt(requestMap.get("idMedico")));
-    
+
                     if (optional.isPresent()) {
                         Medico existingMedico = optional.get();
                         String newNombreMedico = requestMap.get("nombreMedico");
-                      
-    
+
                         // Verificar si el nombre del médico ya existe en otro registro
                         Medico medicoByName = medicoDao.findByNombreMedico(newNombreMedico);
                         if (medicoByName != null && !medicoByName.getIdMedico().equals(existingMedico.getIdMedico())) {
-                            return HospitalUtils.getResponseEntity("El nombre del médico ya existe", HttpStatus.BAD_REQUEST);
+                            return HospitalUtils.getResponseEntity("El nombre del médico ya existe",
+                                    HttpStatus.BAD_REQUEST);
                         }
-    
-                        // Verificar si la imagen del médico ya existe en otro registro
-                       
-    
-                        Medico medico = getMedicosFromMap(requestMap, true);
-                        medico.setStatus(existingMedico.getStatus());
-                        medicoDao.save(medico);
+
+                        // ✅ ACTUALIZAR SOLO LOS CAMPOS QUE VIENEN EN LA PETICIÓN
+                        if (requestMap.containsKey("nombreMedico") && requestMap.get("nombreMedico") != null) {
+                            existingMedico.setNombreMedico(requestMap.get("nombreMedico"));
+                        }
+
+                        if (requestMap.containsKey("especialidadId")) {
+                            Especialidad especialidad = new Especialidad();
+                            especialidad.setId(Integer.parseInt(requestMap.get("especialidadId")));
+                            existingMedico.setEspecialidadMedico(especialidad);
+                        }
+
+                        if (requestMap.containsKey("telefonoMedico") && requestMap.get("telefonoMedico") != null) {
+                            existingMedico.setTelefonoMedico(Integer.parseInt(requestMap.get("telefonoMedico")));
+                        }
+
+                        // ✅ ACTUALIZAR FECHA DE NACIMIENTO SOLO SI VIENE
+                        if (requestMap.containsKey("fechaNacimiento") && requestMap.get("fechaNacimiento") != null
+                                && !requestMap.get("fechaNacimiento").isEmpty()) {
+                            LocalDate fechaNacimiento = LocalDate.parse(requestMap.get("fechaNacimiento"));
+                            existingMedico.setFechaNacimiento(fechaNacimiento);
+                            // Recalcular edad
+                            int edad = Period.between(fechaNacimiento, LocalDate.now()).getYears();
+                            existingMedico.setEdadMedico(edad);
+                        }
+
+                        if (requestMap.containsKey("imagenMedico") && requestMap.get("imagenMedico") != null) {
+                            existingMedico.setImagenMedico(requestMap.get("imagenMedico"));
+                        }
+
+                        // ✅ Mantener el estado actual
+                        // existingMedico.setStatus(existingMedico.getStatus());
+
+                        medicoDao.save(existingMedico);
                         return HospitalUtils.getResponseEntity("Médico actualizado correctamente", HttpStatus.OK);
                     } else {
                         return HospitalUtils.getResponseEntity("ID del médico no existe", HttpStatus.BAD_REQUEST);
@@ -151,7 +178,6 @@ public class MedicoServiceImpl implements MedicoService {
         }
         return HospitalUtils.getResponseEntity(HospitalConstant.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
     }
-    
 
     @Override
     public ResponseEntity<String> deleteMedico(Integer id) {
@@ -215,7 +241,6 @@ public class MedicoServiceImpl implements MedicoService {
         }
         return new ResponseEntity<>(new MedicoWrapper(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
-
 
     public Medico findByNombreMedico(String nombreMedico) {
         return medicoDao.findByNombreMedico(nombreMedico);
