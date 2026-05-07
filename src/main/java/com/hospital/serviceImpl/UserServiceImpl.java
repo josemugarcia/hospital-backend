@@ -98,7 +98,7 @@ public class UserServiceImpl implements UserService {
         user.setEstado("true");
         user.setRol("user");
 
-        // ✅ Fecha de nacimiento
+        //Fecha de nacimiento
         String fechaNacimientoStr = requestMap.get("fechaNacimiento");
         if (fechaNacimientoStr != null && !fechaNacimientoStr.isEmpty()) {
             java.time.LocalDate fechaNacimiento = java.time.LocalDate.parse(fechaNacimientoStr);
@@ -110,20 +110,20 @@ public class UserServiceImpl implements UserService {
     }
 
     private User getUser2FromMap(Map<String, String> requestMap, User existingUser, boolean isAdd) {
-          log.info("📝 getUser2FromMap - nombreCompleto recibido: {}", requestMap.get("nombreCompleto"));
-    log.info("📝 getUser2FromMap - fechaNacimiento recibido: {}", requestMap.get("fechaNacimiento"));
+          log.info("getUser2FromMap - nombreCompleto recibido: {}", requestMap.get("nombreCompleto"));
+    log.info("getUser2FromMap - fechaNacimiento recibido: {}", requestMap.get("fechaNacimiento"));
         User user = new User();
         if (isAdd) {
             user.setId(Integer.parseInt(requestMap.get("id")));
         }
 
-        // ✅ Mantener los valores existentes POR DEFECTO
+        //Mantener los valores existentes POR DEFECTO
         user.setNombre(requestMap.getOrDefault("nombre", existingUser.getNombre()));
         user.setNombreCompleto(requestMap.getOrDefault("nombreCompleto", existingUser.getNombreCompleto()));
         user.setTelefono(requestMap.getOrDefault("telefono", existingUser.getTelefono()));
         user.setEmail(requestMap.getOrDefault("email", existingUser.getEmail()));
 
-        // ✅ Mantener fecha de nacimiento si no viene en la petición
+        //Mantener fecha de nacimiento si no viene en la petición
         String fechaNacimientoStr = requestMap.get("fechaNacimiento");
         if (fechaNacimientoStr != null && !fechaNacimientoStr.isEmpty()) {
             java.time.LocalDate fechaNacimiento = java.time.LocalDate.parse(fechaNacimientoStr);
@@ -154,11 +154,11 @@ public class UserServiceImpl implements UserService {
             // 1. Verificar si el usuario existe en BD
             User userFromDb = userDao.findByEmailId(requestMap.get("email"));
             if (userFromDb == null) {
-                log.error("❌ Usuario NO encontrado: {}", requestMap.get("email"));
+                log.error("Usuario NO encontrado: {}", requestMap.get("email"));
                 return new ResponseEntity<String>("{\"message\":\"Usuario no encontrado\"}", HttpStatus.BAD_REQUEST);
             }
 
-            log.info("✅ Usuario encontrado: {}", userFromDb.getNombre());
+            log.info("Usuario encontrado: {}", userFromDb.getNombre());
             log.info("Password hash en BD: {}", userFromDb.getPassword());
             log.info("Estado: {}", userFromDb.getEstado());
             log.info("Rol: {}", userFromDb.getRol());
@@ -166,17 +166,17 @@ public class UserServiceImpl implements UserService {
             // 2. Verificar manualmente con BCrypt
             BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
             boolean passwordMatches = encoder.matches(requestMap.get("password"), userFromDb.getPassword());
-            log.info("🔐 ¿Coinciden las contraseñas? {}", passwordMatches);
+            log.info("¿Coinciden las contraseñas? {}", passwordMatches);
 
             if (!passwordMatches) {
-                log.error("❌ Contraseña incorrecta");
+                log.error("Contraseña incorrecta");
                 return new ResponseEntity<String>("{\"message\":\"Contraseña incorrecta\"}", HttpStatus.BAD_REQUEST);
             }
 
             // 3. Verificar estado del usuario
             if (!userFromDb.getEstado().equalsIgnoreCase("true")) {
-                log.error("❌ Usuario inactivo");
-                return new ResponseEntity<String>("{\"message\":\"Wait for admin approval.\"}",
+                log.error("Usuario inactivo");
+                return new ResponseEntity<String>("{\"message\":\"Hable con el administrador para iniciar sesion.\"}",
                         HttpStatus.UNAUTHORIZED);
             }
 
